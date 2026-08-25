@@ -1,0 +1,467 @@
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  width:100%;
+  height:100%;
+  margin:0;
+  overflow:hidden;
+  background:#13060f;
+  font-family:Georgia,"Times New Roman",serif;
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+body{
+  touch-action:none;
+}
+
+button{
+  font:inherit;
+}
+
+#gameShell{
+  position:relative;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#160712;
+}
+
+#gameCanvas{
+  display:block;
+  width:100%;
+  height:100%;
+}
+
+.hidden{
+  display:none !important;
+}
+
+/* ---------------------------------------------------------
+   SCREEN OVERLAYS
+--------------------------------------------------------- */
+
+.screenOverlay{
+  position:absolute;
+  inset:0;
+  z-index:30;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:22px;
+  background:rgba(20,4,15,.44);
+  backdrop-filter:blur(4px);
+}
+
+.startCard,
+.celebrationCard{
+  width:min(620px,92vw);
+  padding:30px 28px;
+  text-align:center;
+  color:#fff5e5;
+  border:1px solid rgba(255,220,154,.62);
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 50% 15%,rgba(179,63,113,.42),transparent 58%),
+    rgba(43,12,37,.82);
+  box-shadow:
+    0 22px 70px rgba(0,0,0,.46),
+    inset 0 0 35px rgba(255,184,204,.09);
+}
+
+.startCard h1,
+.celebrationCard h1{
+  margin:8px 0 10px;
+  font-size:clamp(29px,6vw,54px);
+  font-style:italic;
+  font-weight:500;
+  color:#ffe8ad;
+  text-shadow:0 4px 18px rgba(255,185,112,.35);
+}
+
+.startCard p{
+  margin:8px 0 22px;
+  color:#f9dbe5;
+}
+
+.smallTitle{
+  font-size:12px;
+  letter-spacing:5px;
+  color:#f4cbd5;
+}
+
+.startCard button,
+.celebrationCard button{
+  min-width:160px;
+  min-height:50px;
+  padding:12px 20px;
+  border-radius:999px;
+  border:1px solid rgba(255,230,174,.8);
+  color:#fff8e8;
+  background:linear-gradient(135deg,#a52b62,#6c183f);
+  box-shadow:0 8px 24px rgba(0,0,0,.26);
+}
+
+#startButton{
+  min-width:72px;
+  width:72px;
+  height:72px;
+  font-size:34px;
+}
+
+.secondaryButton{
+  background:rgba(61,19,48,.8) !important;
+}
+
+.closedOverlay{
+  background:#090207;
+}
+
+/* ---------------------------------------------------------
+   DIALOGUE
+--------------------------------------------------------- */
+
+.dialogueBox{
+  position:absolute;
+  z-index:20;
+  left:50%;
+  bottom:15%;
+  transform:translateX(-50%);
+  width:min(620px,88vw);
+  padding:15px 20px 17px;
+  border-radius:20px;
+  border:1px solid rgba(255,224,170,.65);
+  background:rgba(45,13,38,.82);
+  backdrop-filter:blur(7px);
+  color:#fff8ed;
+  text-align:center;
+  box-shadow:0 12px 35px rgba(0,0,0,.32);
+}
+
+.dialogueSpeaker{
+  margin-bottom:5px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:3px;
+  color:#ffcfdc;
+}
+
+.dialogueText{
+  font-size:clamp(19px,4vw,30px);
+  font-style:italic;
+}
+
+/* ---------------------------------------------------------
+   HUD
+--------------------------------------------------------- */
+
+#hud{
+  position:absolute;
+  z-index:12;
+  top:max(10px,env(safe-area-inset-top));
+  left:12px;
+  right:12px;
+  display:grid;
+  grid-template-columns:1fr minmax(180px,1.25fr) 1fr;
+  gap:12px;
+  align-items:start;
+  pointer-events:none;
+}
+
+.hudSide{
+  max-width:220px;
+  padding:9px 11px;
+  border-radius:14px;
+  color:#fff5e9;
+  border:1px solid rgba(255,224,169,.42);
+  background:rgba(38,10,31,.58);
+  backdrop-filter:blur(6px);
+}
+
+.hudRight{
+  justify-self:end;
+  text-align:right;
+}
+
+.hudName{
+  margin-bottom:6px;
+  font-size:11px;
+  letter-spacing:2px;
+}
+
+.healthTrack{
+  width:170px;
+  max-width:26vw;
+  height:11px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:999px;
+  background:rgba(0,0,0,.28);
+}
+
+#priyankaHealth{
+  width:100%;
+  height:100%;
+  background:linear-gradient(90deg,#ff558e,#ffd0df);
+  transition:width .22s ease;
+}
+
+#debashisHearts{
+  font-size:20px;
+  letter-spacing:3px;
+  color:#ff789f;
+}
+
+#debashisHearts span.lost{
+  opacity:.18;
+}
+
+.centerHud{
+  text-align:center;
+  color:#fff3dc;
+}
+
+.heartProgress{
+  position:relative;
+  height:12px;
+  margin:7px auto 4px;
+  max-width:320px;
+  overflow:visible;
+  border-radius:999px;
+  border:1px solid rgba(255,236,191,.45);
+  background:rgba(33,7,27,.56);
+}
+
+.heartProgressFill{
+  width:0%;
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#d84981,#ffd28d);
+  transition:width .35s ease;
+}
+
+.heartLeft,
+.heartRight{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:18px;
+  color:#ff8eb0;
+}
+
+.heartLeft{
+  left:-21px;
+}
+
+.heartRight{
+  right:-21px;
+}
+
+#gameHint{
+  margin-top:8px;
+  font-size:12px;
+  letter-spacing:1px;
+  text-shadow:0 2px 5px #000;
+}
+
+/* ---------------------------------------------------------
+   MESSAGES
+--------------------------------------------------------- */
+
+.gameMessage{
+  position:absolute;
+  z-index:16;
+  left:50%;
+  bottom:122px;
+  transform:translateX(-50%) translateY(10px);
+  width:min(540px,82vw);
+  padding:11px 16px;
+  border-radius:16px;
+  border:1px solid rgba(255,226,173,.58);
+  background:rgba(45,12,36,.79);
+  color:#fff6e9;
+  text-align:center;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease,transform .25s ease;
+}
+
+.gameMessage.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* ---------------------------------------------------------
+   SOUND BUTTON
+--------------------------------------------------------- */
+
+.soundButton{
+  position:absolute;
+  z-index:26;
+  right:14px;
+  bottom:118px;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  border:1px solid rgba(255,226,173,.55);
+  color:#fff3dc;
+  background:rgba(45,12,36,.72);
+}
+
+/* ---------------------------------------------------------
+   MOBILE CONTROLS
+--------------------------------------------------------- */
+
+#mobileControls{
+  position:absolute;
+  z-index:18;
+  left:0;
+  right:0;
+  bottom:max(14px,env(safe-area-inset-bottom));
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  padding:0 18px;
+  pointer-events:none;
+}
+
+.moveControls,
+.actionControls{
+  display:flex;
+  align-items:flex-end;
+  gap:9px;
+  pointer-events:auto;
+}
+
+.gameButton{
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  border:1px solid rgba(255,226,173,.66);
+  color:#fff8e8;
+  background:rgba(73,20,57,.76);
+  box-shadow:0 7px 20px rgba(0,0,0,.28);
+}
+
+.gameButton:active,
+.gameButton.active{
+  transform:scale(.92);
+  background:rgba(153,43,94,.9);
+}
+
+.runButton,
+.textButton{
+  width:66px;
+  height:45px;
+  border-radius:16px;
+  font-size:10px;
+  letter-spacing:.5px;
+}
+
+.jumpButton{
+  font-size:27px;
+}
+
+.attackButton{
+  width:68px;
+  height:68px;
+  font-size:30px;
+  background:rgba(166,41,95,.88);
+  box-shadow:
+    0 7px 20px rgba(0,0,0,.28),
+    0 0 18px rgba(255,80,153,.22);
+}
+
+/* ---------------------------------------------------------
+   CELEBRATION
+--------------------------------------------------------- */
+
+.celebrationCard{
+  position:relative;
+  background:
+    radial-gradient(circle at 50% 10%,rgba(255,203,115,.26),transparent 45%),
+    rgba(53,12,41,.86);
+}
+
+.celebrationHeart{
+  font-size:58px;
+  color:#ff6f9f;
+  text-shadow:0 0 25px rgba(255,91,158,.65);
+}
+
+.celebrationCard h2{
+  margin:5px 0 24px;
+  color:#ffd5df;
+  font-weight:400;
+}
+
+.celebrationButtons{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:12px;
+}
+
+/* ---------------------------------------------------------
+   FADE
+--------------------------------------------------------- */
+
+#fadeScreen{
+  position:absolute;
+  inset:0;
+  z-index:40;
+  pointer-events:none;
+  background:#000;
+  opacity:0;
+  transition:opacity 1.5s ease;
+}
+
+#fadeScreen.on{
+  opacity:1;
+}
+
+/* ---------------------------------------------------------
+   ORIENTATION
+--------------------------------------------------------- */
+
+#rotateHint{
+  display:none;
+}
+
+@media (orientation:portrait) and (max-width:700px){
+  #rotateHint{
+    position:absolute;
+    z-index:50;
+    left:50%;
+    bottom:86px;
+    transform:translateX(-50%);
+    display:block;
+    width:max-content;
+    max-width:88vw;
+    padding:7px 11px;
+    border-radius:999px;
+    color:#ffe4d8;
+    font-size:11px;
+    background:rgba(40,9,31,.68);
+    pointer-events:none;
+  }
+
+  #hud{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .centerHud{
+    grid-column:1 / -1;
+    grid-row:2;
+  }
+}
+
+@media (min-width:900px){
+  #mobileControls{
+    opacity:.5;
+  }
+}

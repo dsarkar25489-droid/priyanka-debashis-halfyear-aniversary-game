@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#160712">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <title>Priyanka ♥ Debashis</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="gameShell">
+
+  <canvas
+    id="gameCanvas"
+    aria-label="Priyanka and Debashis interactive story game"
+  ></canvas>
+
+
+  <!-- =====================================================
+       TAP TO START
+       Needed because Android blocks autoplay until a tap.
+  ====================================================== -->
+
+  <div
+    id="startOverlay"
+    class="screenOverlay"
+  >
+
+    <div class="startCard">
+
+      <div class="smallTitle">
+        PRIYANKA ♥ DEBASHIS
+      </div>
+
+      <h1>
+        Our Little Adventure
+      </h1>
+
+      <p>
+        Tap to begin
+      </p>
+
+      <button
+        id="startButton"
+        type="button"
+      >
+        ♥
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       DIALOGUE
+  ====================================================== -->
+
+  <div
+    id="dialogueBox"
+    class="dialogueBox hidden"
+    aria-live="polite"
+  >
+
+    <div
+      id="dialogueSpeaker"
+      class="dialogueSpeaker"
+    ></div>
+
+    <div
+      id="dialogueText"
+      class="dialogueText"
+    ></div>
+
+  </div>
+
+
+  <!-- =====================================================
+       GAMEPLAY HUD
+  ====================================================== -->
+
+  <div
+    id="hud"
+    class="hidden"
+  >
+
+    <div class="hudSide">
+
+      <div class="hudName">
+        PRIYANKA
+      </div>
+
+      <div class="healthTrack">
+        <div id="priyankaHealth"></div>
+      </div>
+
+    </div>
+
+
+    <div class="centerHud">
+
+      <div class="heartProgress">
+
+        <div
+          id="heartProgressFill"
+          class="heartProgressFill"
+        ></div>
+
+        <span class="heartLeft">
+          ♥
+        </span>
+
+        <span class="heartRight">
+          ♥
+        </span>
+
+      </div>
+
+      <div id="gameHint">
+        Protect Debashis ♥
+      </div>
+
+    </div>
+
+
+    <div class="hudSide hudRight">
+
+      <div class="hudName">
+        DEBASHIS
+      </div>
+
+      <div id="debashisHearts">
+        <span>♥</span>
+        <span>♥</span>
+        <span>♥</span>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       GAME MESSAGE
+  ====================================================== -->
+
+  <div
+    id="gameMessage"
+    class="gameMessage"
+    aria-live="polite"
+  ></div>
+
+
+  <!-- =====================================================
+       AUDIO BUTTON
+  ====================================================== -->
+
+  <button
+    id="soundButton"
+    class="soundButton"
+    type="button"
+    aria-label="Mute or unmute sound"
+  >
+    ♪
+  </button>
+
+
+  <!-- =====================================================
+       MOBILE CONTROLS
+  ====================================================== -->
+
+  <div
+    id="mobileControls"
+    class="hidden"
+  >
+
+    <div class="moveControls">
+
+      <button
+        id="leftButton"
+        class="gameButton directionButton"
+        type="button"
+        aria-label="Move left"
+      >
+        ◀
+      </button>
+
+      <button
+        id="rightButton"
+        class="gameButton directionButton"
+        type="button"
+        aria-label="Move right"
+      >
+        ▶
+      </button>
+
+      <button
+        id="runButton"
+        class="gameButton runButton"
+        type="button"
+        aria-label="Run"
+      >
+        RUN
+      </button>
+
+    </div>
+
+
+    <div class="actionControls">
+
+      <button
+        id="dodgeButton"
+        class="gameButton textButton"
+        type="button"
+        aria-label="Dodge"
+      >
+        DODGE
+      </button>
+
+      <button
+        id="jumpButton"
+        class="gameButton jumpButton"
+        type="button"
+        aria-label="Jump"
+      >
+        ↑
+      </button>
+
+      <button
+        id="attackButton"
+        class="gameButton attackButton"
+        type="button"
+        aria-label="Fire heart"
+      >
+        ♥
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       HAPPY HALFWAY ANNIVERSARY
+  ====================================================== -->
+
+  <div
+    id="celebrationOverlay"
+    class="screenOverlay hidden"
+  >
+
+    <div class="celebrationCard">
+
+      <div class="celebrationHeart">
+        ♥
+      </div>
+
+      <h1>
+        Happy Halfway Anniversary
+      </h1>
+
+      <h2>
+        Priyanka ♥ Debashis
+      </h2>
+
+      <div class="celebrationButtons">
+
+        <button
+          id="continueButton"
+          type="button"
+        >
+          ♥ Continue Together
+        </button>
+
+        <button
+          id="closeButton"
+          type="button"
+          class="secondaryButton"
+        >
+          Close
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       GAME OVER
+  ====================================================== -->
+
+  <div
+    id="gameOverOverlay"
+    class="screenOverlay hidden"
+  >
+
+    <div class="startCard">
+
+      <div class="celebrationHeart">
+        ♡
+      </div>
+
+      <h1>
+        Try Again
+      </h1>
+
+      <p>
+        Protect Debashis and keep moving closer.
+      </p>
+
+      <button
+        id="restartButton"
+        type="button"
+      >
+        Restart
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       CLOSED SCREEN
+  ====================================================== -->
+
+  <div
+    id="closedOverlay"
+    class="screenOverlay hidden closedOverlay"
+  >
+
+    <div class="startCard">
+
+      <div class="celebrationHeart">
+        ♥
+      </div>
+
+      <h1>
+        Priyanka ♥ Debashis
+      </h1>
+
+      <p>
+        You can close this page now.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div id="fadeScreen"></div>
+
+  <div id="rotateHint">
+    Rotate your phone for the best experience ↻
+  </div>
+
+</div>
+
+
+<script src="audio.js"></script>
+<script src="game.js"></script>
+
+</body>
+</html>

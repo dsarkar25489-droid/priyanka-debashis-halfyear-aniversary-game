@@ -28,14 +28,13 @@
 
   <!-- =====================================================
        TAP TO START
-       Needed because Android blocks autoplay until a tap.
+       Android requires a user gesture before music can play.
   ====================================================== -->
 
   <div
     id="startOverlay"
     class="screenOverlay"
   >
-
     <div class="startCard">
 
       <div class="smallTitle">
@@ -47,41 +46,42 @@
       </h1>
 
       <p>
-        Tap to begin
+        Tap the heart to begin
       </p>
 
       <button
         id="startButton"
         type="button"
+        aria-label="Start game"
       >
         ♥
       </button>
 
     </div>
-
   </div>
 
 
   <!-- =====================================================
-       DIALOGUE
+       OPENING SPEECH BUBBLE
+
+       During the opening this bubble is moved above the
+       character who is currently speaking.
   ====================================================== -->
 
   <div
-    id="dialogueBox"
-    class="dialogueBox hidden"
+    id="speechBubble"
+    class="speechBubble hidden"
     aria-live="polite"
   >
-
     <div
-      id="dialogueSpeaker"
-      class="dialogueSpeaker"
+      id="speechName"
+      class="speechName"
     ></div>
 
     <div
-      id="dialogueText"
-      class="dialogueText"
+      id="speechText"
+      class="speechText"
     ></div>
-
   </div>
 
 
@@ -116,13 +116,8 @@
           class="heartProgressFill"
         ></div>
 
-        <span class="heartLeft">
-          ♥
-        </span>
-
-        <span class="heartRight">
-          ♥
-        </span>
+        <span class="heartLeft">♥</span>
+        <span class="heartRight">♥</span>
 
       </div>
 
@@ -151,7 +146,7 @@
 
 
   <!-- =====================================================
-       GAME MESSAGE
+       SMALL GAME MESSAGE
   ====================================================== -->
 
   <div
@@ -162,7 +157,7 @@
 
 
   <!-- =====================================================
-       AUDIO BUTTON
+       SOUND
   ====================================================== -->
 
   <button
@@ -177,6 +172,8 @@
 
   <!-- =====================================================
        MOBILE CONTROLS
+
+       Dodge has been removed completely.
   ====================================================== -->
 
   <div
@@ -219,15 +216,6 @@
     <div class="actionControls">
 
       <button
-        id="dodgeButton"
-        class="gameButton textButton"
-        type="button"
-        aria-label="Dodge"
-      >
-        DODGE
-      </button>
-
-      <button
         id="jumpButton"
         class="gameButton jumpButton"
         type="button"
@@ -251,7 +239,7 @@
 
 
   <!-- =====================================================
-       HAPPY HALFWAY ANNIVERSARY
+       ANNIVERSARY CELEBRATION
   ====================================================== -->
 
   <div
@@ -363,7 +351,7 @@
   <div id="fadeScreen"></div>
 
   <div id="rotateHint">
-    Rotate your phone for the best experience ↻
+    Landscape mode is recommended ↻
   </div>
 
 </div>

@@ -1,143 +1,88 @@
-PRIYANKA ♥ DEBASHIS — STORY GAME V5
+PRIYANKA ♥ DEBASHIS — STORY GAME V6
 ====================================
 
-THIS VERSION HAS NO LEVEL / MONTH SYSTEM.
+MAIN CHANGES FROM V5
+--------------------
+1. Opening conversation is now staged correctly.
+   - Priyanka stays facing Debashis.
+   - Debashis stays facing Priyanka.
+   - Their idle sprites do not rotate through front/back views.
+   - Each line appears as a speech bubble above the person speaking.
 
-STORY
------
-1. Priyanka and Debashis meet.
-2. Debashis walks to Priyanka.
-3. Debashis: Bengali?
-4. Priyanka: YES
-5. Debashis: Haat ta Dao
-6. Priyanka: Yarki Hoche naki, haat dhorbe!
-7. Priyanka gets angry, turns left and runs away.
-8. The chase/protection game begins.
-9. Priyanka's actions are mirrored by Debashis.
-10. Enemy kills bring Priyanka closer.
-11. Priyanka getting hurt pushes Debashis farther away.
-12. When Priyanka reaches Debashis:
-    HAPPY HALFWAY ANNIVERSARY
-13. Continue = both keep playing together forever.
-14. Close = story fades out.
+2. Dodge is completely removed.
+   - No dodge button.
+   - No S key.
+   - No dodge code.
+   - No dodge sound.
+   - Jump is now the defensive action.
 
-FILES
------
-index.html
-style.css
-audio.js
-game.js
+3. Camera/view is more distant.
+   - Characters are smaller.
+   - Priyanka sits farther left.
+   - Debashis is visibly farther ahead.
+   - More of the environment and incoming danger are visible.
 
-assets/
-    priyanka_atlas.png
-    debashis_atlas.png
-    environment_atlas.png
+4. Environment rendering changed.
+   - V5 stacked several scenic parallax strips vertically.
+   - V6 uses one large distant scenic layer plus one forest layer.
+   - This reduces the "background repeating vertically" appearance.
+   - Procedural props are less dense and more varied.
 
-assets/audio/
-    magical_story_loop.mp3
-    heart_fire.mp3
-    jump.mp3
-    dodge.mp3
-    player_hit.mp3
-    debashis_hit.mp3
-    enemy_defeat.mp3
-    dialogue_debashis.mp3
-    dialogue_priyanka.mp3
-    ui.mp3
-    celebration.mp3
+5. Better enemies.
+   V6 uses the illustrated enemy artwork already contained inside
+   assets/environment_atlas.png:
 
-ANDROID
--------
-The game uses Pointer Events for touch controls.
+   - Shadow creature
+   - Flying bat
+   - Thorn/tree creature
+   - Dark knight
+   - Purple dragon
 
-The first "Tap to begin" is important:
-Android Chrome does not allow background audio autoplay before a user gesture.
+   Stronger enemies have HP bars.
 
-GOOGLE VM
----------
-This game is a static website.
-Nginx can serve the folder directly.
-
-Example web root:
-    /var/www/lovegame/
-
-Copy all files from this folder into that location.
-
-MAIN DIFFICULTY SETTINGS
-------------------------
-Open game.js and find:
-
-const CONFIG = {
-
-Important settings:
-
-startDistance: 1050
-
-enemySpawnMin: 1.15
-enemySpawnMax: 2.20
-maxActiveEnemies: 3
-
-priyankaHitPenalty: 62
-
-normalKillReward: 27
-fastKillReward: 34
-strongKillReward: 52
-eliteKillReward: 72
-
-To make the game HARDER:
-
-enemySpawnMin: 0.90
-enemySpawnMax: 1.60
-maxActiveEnemies: 4
-
-To make it EASIER:
-
-enemySpawnMin: 1.60
-enemySpawnMax: 2.80
-maxActiveEnemies: 2
-
-BACKGROUND MUSIC
-----------------
-The included file:
-
-assets/audio/magical_story_loop.mp3
-
-is an ORIGINAL magical-fantasy loop generated for this project.
-
-It is NOT the Harry Potter theme.
-
-If you legally own/licence another music track, replace:
-
-assets/audio/magical_story_loop.mp3
-
-with your track using the SAME filename.
-
-Or edit audio.js:
-
-music:
-    "assets/audio/YOUR_FILE.mp3"
-
-The track automatically loops.
-
-MUSIC VOLUME
-------------
-Open audio.js and find:
-
-this.music.volume = 0.34;
-
-Example:
-0.20 = quieter
-0.50 = louder
+6. Moderate/harder enemy pacing.
+   - Enemies now arrive in waves.
+   - 2–5 enemies per wave.
+   - Up to 4 active enemies.
+   - Short rest periods between waves.
+   - Strong enemy frequency rises as Priyanka gets closer.
 
 CONTROLS
 --------
 Android:
-Left / Right / Run / Dodge / Jump / Heart buttons
+LEFT
+RIGHT
+RUN
+JUMP
+HEART FIRE
 
 Desktop:
 A / Left Arrow     Move left
 D / Right Arrow    Move right
 Shift              Run
 Space / Up / W     Jump
-S                  Dodge
 J / F              Fire heart
+
+FILES TO REPLACE ON GITHUB
+--------------------------
+For an existing GitHub Pages repository, replace:
+
+index.html
+style.css
+audio.js
+game.js
+
+Also remove:
+assets/audio/dodge.mp3
+
+All other V5 assets continue to work.
+
+GITHUB CACHE
+------------
+After uploading new files, GitHub Pages may need a short time to deploy.
+If the phone still shows the old version, reload the page or use:
+Chrome menu -> Reload.
+
+BACKGROUND MUSIC
+----------------
+The included magical_story_loop.mp3 is the original fantasy loop from V5.

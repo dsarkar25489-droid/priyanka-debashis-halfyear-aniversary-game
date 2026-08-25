@@ -3,32 +3,25 @@
 "use strict";
 
 /*
-==============================================================
+=================================================================
 PRIYANKA ♥ DEBASHIS
-SINGLE CONTINUOUS STORY GAME
-==============================================================
+STORY GAME V6
+=================================================================
 
-STORY FLOW
+CHANGES IN THIS VERSION
 
-1. Priyanka and Debashis meet.
-2. Debashis walks to Priyanka.
-3. Dialogue:
-   Debashis: "Bengali?"
-   Priyanka:  "YES"
-   Debashis: "Haat ta Dao"
-   Priyanka:  "Yarki Hoche naki, haat dhorbe!"
-4. Priyanka becomes angry, turns left and runs away.
-5. Large separation is created.
-6. Enemies begin attacking Debashis.
-7. Priyanka controls BOTH characters through mirroring.
-8. Enemy defeated -> Priyanka gets closer.
-9. Priyanka hurt -> Debashis gets farther away.
-10. When they meet -> Happy Halfway Anniversary.
-11. Continue -> they play together forever.
-
-There is NO level name and NO fixed world ending.
-The terrain keeps generating forever.
-==============================================================
+- Opening characters are locked facing each other.
+- Opening dialogue appears above the person speaking.
+- Idle rotation is disabled during conversation.
+- Dodge has been completely removed.
+- Camera is more zoomed out.
+- Priyanka is farther left, Debashis farther ahead.
+- Background no longer stacks repeated scenic strips vertically.
+- Enemies use the detailed enemy artwork already inside
+  environment_atlas.png instead of simple circles/blobs.
+- Enemy waves are moderately harder but include short breathing gaps.
+- Jump is now the main defensive reaction against incoming attacks.
+=================================================================
 */
 
 
@@ -46,6 +39,7 @@ const ctx =
     "2d"
   );
 
+
 const startOverlay =
   document.getElementById(
     "startOverlay"
@@ -56,20 +50,22 @@ const startButton =
     "startButton"
   );
 
-const dialogueBox =
+
+const speechBubble =
   document.getElementById(
-    "dialogueBox"
+    "speechBubble"
   );
 
-const dialogueSpeaker =
+const speechName =
   document.getElementById(
-    "dialogueSpeaker"
+    "speechName"
   );
 
-const dialogueText =
+const speechText =
   document.getElementById(
-    "dialogueText"
+    "speechText"
   );
+
 
 const hud =
   document.getElementById(
@@ -80,6 +76,7 @@ const mobileControls =
   document.getElementById(
     "mobileControls"
   );
+
 
 const healthElement =
   document.getElementById(
@@ -101,10 +98,12 @@ const gameHint =
     "gameHint"
   );
 
+
 const gameMessage =
   document.getElementById(
     "gameMessage"
   );
+
 
 const celebrationOverlay =
   document.getElementById(
@@ -121,6 +120,7 @@ const closeButton =
     "closeButton"
   );
 
+
 const gameOverOverlay =
   document.getElementById(
     "gameOverOverlay"
@@ -130,6 +130,7 @@ const restartButton =
   document.getElementById(
     "restartButton"
   );
+
 
 const closedOverlay =
   document.getElementById(
@@ -148,7 +149,7 @@ const soundButton =
 
 
 // ============================================================
-// GAME STATES
+// STATES
 // ============================================================
 
 const MODE = {
@@ -187,62 +188,51 @@ let mode =
 
 
 // ============================================================
-// MAIN CONFIGURATION
-//
-// THIS IS THE FIRST PLACE TO EDIT GAME DIFFICULTY.
+// CONFIGURATION
 // ============================================================
 
 const CONFIG = {
 
-  //-------------------------------------------
-  // Relationship distance
-  //-------------------------------------------
-
+  // Relationship distance.
   startDistance:
-    1050,
+    1120,
 
   reunionDistance:
-    82,
+    78,
 
   minimumDistance:
-    70,
+    68,
 
   maximumDistance:
-    1750,
+    1900,
 
 
-  //-------------------------------------------
-  // Distance rewards
-  //-------------------------------------------
-
-  normalKillReward:
+  // Rewards.
+  shadowReward:
     27,
 
-  fastKillReward:
-    34,
+  batReward:
+    31,
 
-  strongKillReward:
-    52,
+  thornReward:
+    42,
 
-  eliteKillReward:
+  knightReward:
+    55,
+
+  dragonReward:
     72,
 
 
-  //-------------------------------------------
-  // Penalties
-  //-------------------------------------------
-
+  // Penalties.
   priyankaHitPenalty:
-    62,
+    68,
 
   debashisHitPenalty:
-    35,
+    42,
 
 
-  //-------------------------------------------
-  // Health
-  //-------------------------------------------
-
+  // Health.
   priyankaMaxHealth:
     100,
 
@@ -250,76 +240,73 @@ const CONFIG = {
     3,
 
 
-  //-------------------------------------------
-  // Movement
-  //-------------------------------------------
-
+  // Movement.
   walkSpeed:
-    180,
+    190,
 
   runSpeed:
-    325,
+    345,
 
   jumpPower:
-    570,
+    600,
 
   gravity:
-    1500,
-
-  dodgeDuration:
-    0.42,
+    1580,
 
 
-  //-------------------------------------------
-  // Combat
-  //-------------------------------------------
-
+  // Combat.
   heartSpeed:
-    520,
+    620,
 
   heartCooldown:
-    0.33,
+    0.30,
 
 
-  //-------------------------------------------
-  // Enemy balance
-  //
-  // Moderate but intentionally challenging.
-  //-------------------------------------------
-
-  enemySpawnMin:
-    1.15,
-
-  enemySpawnMax:
-    2.20,
-
+  // Enemy director.
   maxActiveEnemies:
-    3,
+    4,
 
+  waveMinEnemies:
+    2,
 
-  //-------------------------------------------
-  // Enemy counterattack
-  //-------------------------------------------
+  waveMaxEnemies:
+    5,
 
-  enemyAttackChance:
-    0.38,
+  waveSpawnMin:
+    0.58,
 
-  enemyAttackTravelTime:
+  waveSpawnMax:
     1.05,
 
+  waveRestMin:
+    1.35,
 
-  //-------------------------------------------
-  // Procedural scenery
-  //-------------------------------------------
+  waveRestMax:
+    2.45,
 
+
+  // Enemy ranged attacks.
+  enemyAttackChance:
+    0.42,
+
+  enemyAttackTravelTime:
+    1.15,
+
+
+  // Procedural scenery.
   chunkWidth:
-    820,
+    940,
 
   chunksAhead:
     5,
 
   chunksBehind:
-    2
+    2,
+
+
+  // Visual scale.
+  characterScale:
+    0.82
 };
 
 
@@ -350,7 +337,7 @@ const DEBASHIS_CELL = {
 const PRIYANKA_ANIMS = {
 
   idle:
-    { row:0, frames:6, fps:4 },
+    { row:0, frames:1, fps:1 },
 
   walkR:
     { row:1, frames:7, fps:8 },
@@ -366,9 +353,6 @@ const PRIYANKA_ANIMS = {
 
   jump:
     { row:5, frames:4, fps:8 },
-
-  dodge:
-    { row:6, frames:3, fps:13 },
 
   attack:
     { row:7, frames:3, fps:11 }
@@ -378,7 +362,7 @@ const PRIYANKA_ANIMS = {
 const DEBASHIS_ANIMS = {
 
   idle:
-    { row:0, frames:5, fps:4 },
+    { row:0, frames:1, fps:1 },
 
   walkR:
     { row:1, frames:7, fps:8 },
@@ -394,9 +378,6 @@ const DEBASHIS_ANIMS = {
 
   jump:
     { row:5, frames:4, fps:8 },
-
-  dodge:
-    { row:6, frames:3, fps:13 },
 
   attack:
     { row:7, frames:4, fps:11 }
@@ -430,28 +411,23 @@ environmentAtlas.src =
 
 // ============================================================
 // ENVIRONMENT ATLAS CROPS
-//
-// Edit these rectangles if you later want to recrop
-// environment_atlas.png.
 // ============================================================
 
 const ENV = {
 
+  // Only one far scenic strip plus one forest band are used.
+  // This avoids the previous "scene repeated vertically" look.
   sky:
     {x:10, y:18, w:1028, h:95},
-
-  mid:
-    {x:10, y:140, w:1028, h:95},
 
   forest:
     {x:10, y:252, w:1028, h:95},
 
-  front:
+  foreground:
     {x:10, y:373, w:1028, h:52},
 
-  heartDoor:
-    {x:10, y:442, w:120, h:136},
 
+  // Landmarks / decorations.
   fountain:
     {x:132, y:446, w:150, h:128},
 
@@ -482,13 +458,28 @@ const ENV = {
   flowerPatch:
     {x:612, y:726, w:120, h:70},
 
-  mist:
-    {x:1208, y:850, w:120, h:45}
+
+  // Better enemies from the environment atlas enemy row.
+  // These are real illustrated sprites, not geometric blobs.
+  enemyShadow:
+    {x:18,  y:803, w:68,  h:72},
+
+  enemyBat:
+    {x:180, y:798, w:87,  h:73},
+
+  enemyThorn:
+    {x:308, y:779, w:92,  h:103},
+
+  enemyKnight:
+    {x:519, y:775, w:105, h:112},
+
+  enemyDragon:
+    {x:625, y:777, w:137, h:118}
 };
 
 
 // ============================================================
-// CANVAS SIZE
+// CANVAS
 // ============================================================
 
 let W =
@@ -543,6 +534,8 @@ function resize() {
     0,
     0
   );
+
+  updateSpeechBubblePosition();
 }
 
 
@@ -555,7 +548,7 @@ resize();
 
 
 // ============================================================
-// UTILITY
+// HELPERS
 // ============================================================
 
 function clamp(
@@ -611,7 +604,7 @@ function groundY() {
 
   return (
     H *
-    0.79
+    0.80
   );
 }
 
@@ -632,8 +625,7 @@ const player = {
     0,
 
   health:
-    CONFIG
-      .priyankaMaxHealth,
+    CONFIG.priyankaMaxHealth,
 
   grounded:
     true,
@@ -653,9 +645,6 @@ const player = {
   attackCooldown:
     0,
 
-  dodging:
-    0,
-
   invulnerable:
     0
 };
@@ -664,8 +653,7 @@ const player = {
 const debashis = {
 
   hearts:
-    CONFIG
-      .debashisMaxHearts,
+    CONFIG.debashisMaxHearts,
 
   y:
     0,
@@ -686,9 +674,6 @@ const debashis = {
     0,
 
   attacking:
-    0,
-
-  dodging:
     0
 };
 
@@ -699,14 +684,6 @@ let relationshipDistance =
 
 let worldScroll =
   0;
-
-
-let enemySpawnTimer =
-  2.4;
-
-
-let hazardSpawnTimer =
-  4.2;
 
 
 let time =
@@ -738,7 +715,7 @@ const enemies =
   [];
 
 
-const hearts =
+const heartShots =
   [];
 
 
@@ -746,7 +723,7 @@ const incomingAttacks =
   [];
 
 
-const hazards =
+const groundHazards =
   [];
 
 
@@ -758,8 +735,19 @@ const chunks =
   new Map();
 
 
+// Enemy wave director.
+let waveRemaining =
+  0;
+
+let waveSpawnTimer =
+  0;
+
+let waveRestTimer =
+  0.8;
+
+
 // ============================================================
-// OPENING CINEMATIC DATA
+// OPENING
 // ============================================================
 
 const meeting = {
@@ -788,7 +776,7 @@ const dialogueSequence = [
       "Bengali?",
 
     duration:
-      1.55,
+      1.70,
 
     sound:
       "dialogueDebashis"
@@ -802,7 +790,7 @@ const dialogueSequence = [
       "YES",
 
     duration:
-      1.25,
+      1.35,
 
     sound:
       "dialoguePriyanka"
@@ -816,7 +804,7 @@ const dialogueSequence = [
       "Haat ta Dao",
 
     duration:
-      1.65,
+      1.80,
 
     sound:
       "dialogueDebashis"
@@ -830,7 +818,7 @@ const dialogueSequence = [
       "Yarki Hoche naki, haat dhorbe!",
 
     duration:
-      2.35,
+      2.75,
 
     sound:
       "dialoguePriyanka"
@@ -847,101 +835,146 @@ let dialogueTimer =
 
 
 // ============================================================
-// ENEMY TYPES
+// ENEMY DEFINITIONS
 // ============================================================
 
 const ENEMY_TYPES = {
 
   shadow: {
 
+    crop:
+      ENV.enemyShadow,
+
     hp:
       1,
 
     speed:
-      82,
+      98,
 
     reward:
-      CONFIG
-        .normalKillReward,
+      CONFIG.shadowReward,
 
-    radius:
-      25,
+    scale:
+      0.72,
 
-    color:
-      "#351334"
+    flying:
+      false,
+
+    ranged:
+      false
   },
 
 
-  runner: {
+  bat: {
+
+    crop:
+      ENV.enemyBat,
 
     hp:
       1,
 
     speed:
-      122,
+      128,
 
     reward:
-      CONFIG
-        .fastKillReward,
+      CONFIG.batReward,
 
-    radius:
-      23,
+    scale:
+      0.78,
 
-    color:
-      "#68408d"
+    flying:
+      true,
+
+    ranged:
+      false
   },
 
 
   thorn: {
 
+    crop:
+      ENV.enemyThorn,
+
     hp:
       2,
 
     speed:
-      74,
+      82,
 
     reward:
-      CONFIG
-        .strongKillReward,
+      CONFIG.thornReward,
 
-    radius:
-      29,
+    scale:
+      0.78,
 
-    color:
-      "#3c6a39"
+    flying:
+      false,
+
+    ranged:
+      false
   },
 
 
-  guardian: {
+  knight: {
+
+    crop:
+      ENV.enemyKnight,
+
+    hp:
+      3,
+
+    speed:
+      69,
+
+    reward:
+      CONFIG.knightReward,
+
+    scale:
+      0.82,
+
+    flying:
+      false,
+
+    ranged:
+      true
+  },
+
+
+  dragon: {
+
+    crop:
+      ENV.enemyDragon,
 
     hp:
       4,
 
     speed:
-      60,
+      86,
 
     reward:
-      CONFIG
-        .eliteKillReward,
+      CONFIG.dragonReward,
 
-    radius:
-      34,
+    scale:
+      0.82,
 
-    color:
-      "#8c234b"
+    flying:
+      true,
+
+    ranged:
+      true
   }
 };
 
 
 // ============================================================
-// PROCEDURAL CHUNK GENERATOR
+// PROCEDURAL WORLD
 // ============================================================
 
 function seededRandom(
   seed
 ) {
 
-  let x =
+  const x =
     Math.sin(
       seed *
       999.91
@@ -950,9 +983,7 @@ function seededRandom(
 
   return (
     x -
-    Math.floor(
-      x
-    )
+    Math.floor(x)
   );
 }
 
@@ -985,14 +1016,15 @@ function createChunk(
     [];
 
 
+  // Fewer objects than V5 so the world does not look copied.
   const count =
-    4 +
+    2 +
     Math.floor(
       seededRandom(
         index +
         2
       ) *
-      4
+      3
     );
 
 
@@ -1027,7 +1059,7 @@ function createChunk(
       x:
         index *
         CONFIG.chunkWidth +
-        90 +
+        120 +
         seededRandom(
           index *
           40 +
@@ -1036,17 +1068,17 @@ function createChunk(
         ) *
         (
           CONFIG.chunkWidth -
-          180
+          240
         ),
 
       scale:
-        0.6 +
+        0.54 +
         seededRandom(
           index *
           70 +
           i
         ) *
-        0.55
+        0.48
     });
   }
 
@@ -1082,22 +1114,17 @@ function maintainChunks() {
     if (
       i < 0
     ) {
-
       continue;
     }
 
 
     if (
-      !chunks.has(
-        i
-      )
+      !chunks.has(i)
     ) {
 
       chunks.set(
         i,
-        createChunk(
-          i
-        )
+        createChunk(i)
       );
     }
   }
@@ -1115,32 +1142,27 @@ function maintainChunks() {
       1
     ) {
 
-      chunks.delete(
-        index
-      );
+      chunks.delete(index);
     }
   }
 }
 
 
 // ============================================================
-// UI
+// HUD / MESSAGES
 // ============================================================
 
 function showMessage(
   text,
-  duration = 1.6
+  duration = 1.4
 ) {
 
-  gameMessage
-    .textContent =
+  gameMessage.textContent =
     text;
 
   gameMessage
     .classList
-    .add(
-      "show"
-    );
+    .add("show");
 
   messageTimer =
     duration;
@@ -1151,9 +1173,7 @@ function hideMessage() {
 
   gameMessage
     .classList
-    .remove(
-      "show"
-    );
+    .remove("show");
 }
 
 
@@ -1168,9 +1188,7 @@ function updateHud() {
     );
 
 
-  healthElement
-    .style
-    .width =
+  healthElement.style.width =
     (
       hp *
       100
@@ -1180,27 +1198,24 @@ function updateHud() {
 
   const heartNodes =
     heartsElement
-      .querySelectorAll(
-        "span"
-      );
+      .querySelectorAll("span");
 
 
-  heartNodes
-    .forEach(
-      (
-        node,
-        index
-      ) => {
+  heartNodes.forEach(
+    (
+      node,
+      index
+    ) => {
 
-        node
-          .classList
-          .toggle(
-            "lost",
-            index >=
-            debashis.hearts
-          );
-      }
-    );
+      node
+        .classList
+        .toggle(
+          "lost",
+          index >=
+          debashis.hearts
+        );
+    }
+  );
 
 
   const progress =
@@ -1218,9 +1233,7 @@ function updateHud() {
     );
 
 
-  progressFill
-    .style
-    .width =
+  progressFill.style.width =
     (
       progress *
       100
@@ -1230,7 +1243,7 @@ function updateHud() {
 
 
 // ============================================================
-// CHARACTER SCREEN POSITIONS
+// CAMERA / CHARACTER SCREEN POSITIONS
 // ============================================================
 
 function chaseSeparation() {
@@ -1250,11 +1263,12 @@ function chaseSeparation() {
     );
 
 
+  // More visual distance than V5.
   return lerp(
     W *
       0.12,
     W *
-      0.43,
+      0.49,
     t
   );
 }
@@ -1271,11 +1285,11 @@ function getCharacterScreenPositions() {
 
       priyanka:
         W *
-        0.60,
+        0.59,
 
       debashis:
         W *
-        0.43
+        0.42
     };
   }
 
@@ -1284,18 +1298,71 @@ function getCharacterScreenPositions() {
 
     priyanka:
       W *
-      0.20,
+      0.15,
 
     debashis:
       W *
-      0.20 +
+      0.15 +
       chaseSeparation()
   };
 }
 
 
 // ============================================================
-// CHARACTER ACTIONS
+// OPENING SPEECH BUBBLE
+// ============================================================
+
+function updateSpeechBubblePosition() {
+
+  if (
+    speechBubble
+      .classList
+      .contains("hidden")
+  ) {
+    return;
+  }
+
+
+  const item =
+    dialogueSequence[
+      dialogueIndex
+    ];
+
+
+  if (
+    !item
+  ) {
+    return;
+  }
+
+
+  const isPriyanka =
+    item.speaker ===
+    "PRIYANKA";
+
+
+  const x =
+    isPriyanka
+      ? meeting.priyankaX
+      : meeting.debashisX;
+
+
+  speechBubble.style.left =
+    x +
+    "px";
+
+
+  speechBubble.style.top =
+    (
+      groundY() -
+      152
+    ) +
+    "px";
+}
+
+
+// ============================================================
+// ACTIONS
 // ============================================================
 
 function setMirroredState(
@@ -1313,11 +1380,18 @@ function setMirroredState(
 function jump() {
 
   if (
-    !player.grounded ||
-    player.dodging >
-    0
+    mode !==
+      MODE.CHASE &&
+    mode !==
+      MODE.TOGETHER
   ) {
+    return;
+  }
 
+
+  if (
+    !player.grounded
+  ) {
     return;
   }
 
@@ -1343,43 +1417,22 @@ function jump() {
 }
 
 
-function dodge() {
+function fireHeart() {
 
   if (
-    player.dodging >
-    0
+    mode !==
+      MODE.CHASE &&
+    mode !==
+      MODE.TOGETHER
   ) {
-
     return;
   }
 
-
-  player.dodging =
-    CONFIG.dodgeDuration;
-
-  debashis.dodging =
-    CONFIG.dodgeDuration;
-
-
-  player.invulnerable =
-    CONFIG.dodgeDuration +
-    0.12;
-
-
-  gameAudio.play(
-    "dodge",
-    0.65
-  );
-}
-
-
-function fireHeart() {
 
   if (
     player.attackCooldown >
     0
   ) {
-
     return;
   }
 
@@ -1389,61 +1442,57 @@ function fireHeart() {
 
 
   player.attacking =
-    0.28;
+    0.26;
 
   debashis.attacking =
-    0.28;
+    0.26;
 
 
   const positions =
     getCharacterScreenPositions();
 
 
-  // Priyanka's shot is visible and can hit
-  // anything that has crossed behind Debashis.
-  hearts.push({
+  heartShots.push({
 
     owner:
       "priyanka",
 
     x:
       positions.priyanka +
-      34,
+      27,
 
     y:
       groundY() -
       player.y -
-      82,
+      68,
 
     vx:
       CONFIG.heartSpeed,
 
     life:
-      1.5
+      1.45
   });
 
 
-  // Debashis mirrors Priyanka.
-  // This is the main protective shot.
-  hearts.push({
+  heartShots.push({
 
     owner:
       "debashis",
 
     x:
       positions.debashis +
-      34,
+      27,
 
     y:
       groundY() -
       debashis.y -
-      82,
+      68,
 
     vx:
       CONFIG.heartSpeed,
 
     life:
-      1.5
+      1.45
   });
 
 
@@ -1455,17 +1504,17 @@ function fireHeart() {
 
   spawnSparkles(
     positions.debashis +
-    34,
+      27,
     groundY() -
-    82,
+      68,
     "#ff72b1",
-    10
+    9
   );
 }
 
 
 // ============================================================
-// PLAYER DAMAGE
+// DAMAGE
 // ============================================================
 
 function hurtPriyanka(
@@ -1476,7 +1525,6 @@ function hurtPriyanka(
     player.invulnerable >
     0
   ) {
-
     return;
   }
 
@@ -1490,14 +1538,13 @@ function hurtPriyanka(
 
 
   player.invulnerable =
-    0.9;
+    0.86;
 
 
   relationshipDistance =
     clamp(
       relationshipDistance +
-      CONFIG
-        .priyankaHitPenalty,
+      CONFIG.priyankaHitPenalty,
       CONFIG.minimumDistance,
       CONFIG.maximumDistance
     );
@@ -1510,8 +1557,8 @@ function hurtPriyanka(
 
 
   showMessage(
-    "Priyanka was hurt — Debashis moved farther away",
-    1.6
+    "Priyanka was hurt — the distance increased",
+    1.45
   );
 
 
@@ -1541,8 +1588,7 @@ function hurtDebashis() {
   relationshipDistance =
     clamp(
       relationshipDistance +
-      CONFIG
-        .debashisHitPenalty,
+      CONFIG.debashisHitPenalty,
       CONFIG.minimumDistance,
       CONFIG.maximumDistance
     );
@@ -1555,8 +1601,8 @@ function hurtDebashis() {
 
 
   showMessage(
-    "Protect Debashis!",
-    1.2
+    "Debashis was hit!",
+    1.15
   );
 
 
@@ -1574,24 +1620,30 @@ function hurtDebashis() {
 
 
 // ============================================================
-// ENEMY SPAWNING
+// ENEMY DIRECTOR
 // ============================================================
 
-function pickEnemyType() {
+function currentProgress() {
+
+  return clamp(
+    (
+      CONFIG.startDistance -
+      relationshipDistance
+    ) /
+    (
+      CONFIG.startDistance -
+      CONFIG.reunionDistance
+    ),
+    0,
+    1
+  );
+}
+
+
+function chooseEnemyType() {
 
   const progress =
-    clamp(
-      (
-        CONFIG.startDistance -
-        relationshipDistance
-      ) /
-      (
-        CONFIG.startDistance -
-        CONFIG.reunionDistance
-      ),
-      0,
-      1
-    );
+    currentProgress();
 
 
   const roll =
@@ -1600,36 +1652,72 @@ function pickEnemyType() {
 
   if (
     progress >
-      0.70 &&
+      0.68 &&
     roll <
-      0.13
+      0.14
   ) {
-
-    return "guardian";
+    return "dragon";
   }
 
 
   if (
     progress >
-      0.40 &&
+      0.42 &&
     roll <
-      0.37
+      0.35
   ) {
+    return "knight";
+  }
 
+
+  if (
+    progress >
+      0.22 &&
+    roll <
+      0.56
+  ) {
     return "thorn";
   }
 
 
   if (
     roll <
-      0.36
+      0.38
   ) {
-
-    return "runner";
+    return "bat";
   }
 
 
   return "shadow";
+}
+
+
+function startNewWave() {
+
+  const progress =
+    currentProgress();
+
+
+  const extra =
+    progress >
+      0.72
+      ? 1
+      : 0;
+
+
+  waveRemaining =
+    Math.floor(
+      randomRange(
+        CONFIG.waveMinEnemies,
+        CONFIG.waveMaxEnemies +
+        1 +
+        extra
+      )
+    );
+
+
+  waveSpawnTimer =
+    0.15;
 }
 
 
@@ -1641,8 +1729,7 @@ function spawnEnemy() {
     mode !==
       MODE.TOGETHER
   ) {
-
-    return;
+    return false;
   }
 
 
@@ -1650,16 +1737,15 @@ function spawnEnemy() {
     enemies.length >=
     CONFIG.maxActiveEnemies
   ) {
-
-    return;
+    return false;
   }
 
 
   const type =
-    pickEnemyType();
+    chooseEnemyType();
 
 
-  const definition =
+  const def =
     ENEMY_TYPES[
       type
     ];
@@ -1671,31 +1757,28 @@ function spawnEnemy() {
 
     relX:
       W *
-      0.40 +
+      0.36 +
       randomRange(
-        40,
-        160
+        90,
+        190
       ),
 
     hp:
-      definition.hp,
+      def.hp,
+
+    maxHp:
+      def.hp,
 
     speed:
-      definition.speed,
+      def.speed,
 
     reward:
-      definition.reward,
-
-    radius:
-      definition.radius,
-
-    color:
-      definition.color,
+      def.reward,
 
     attackTimer:
       randomRange(
-        0.75,
-        1.7
+        1.0,
+        2.0
       ),
 
     attacked:
@@ -1704,56 +1787,127 @@ function spawnEnemy() {
     bob:
       Math.random() *
       Math.PI *
-      2
+      2,
+
+    flash:
+      0
   });
+
+
+  return true;
 }
 
 
-// ============================================================
-// HAZARD SPAWNING
-//
-// These require jump/dodge because Debashis reaches them
-// first and mirrors Priyanka.
-// ============================================================
-
-function spawnHazard() {
+function updateEnemyDirector(
+  dt
+) {
 
   if (
-    mode !==
-      MODE.CHASE
+    waveRemaining >
+    0
   ) {
+
+    waveSpawnTimer -=
+      dt;
+
+
+    if (
+      waveSpawnTimer <=
+      0
+    ) {
+
+      if (
+        spawnEnemy()
+      ) {
+
+        waveRemaining--;
+
+
+        waveSpawnTimer =
+          randomRange(
+            CONFIG.waveSpawnMin,
+            CONFIG.waveSpawnMax
+          );
+      }
+      else {
+
+        waveSpawnTimer =
+          0.25;
+      }
+    }
+
 
     return;
   }
 
 
-  hazards.push({
+  waveRestTimer -=
+    dt;
 
-    type:
-      Math.random() >
-      0.5
-        ? "thorn"
-        : "lowBranch",
+
+  if (
+    waveRestTimer <=
+    0 &&
+    enemies.length <=
+      1
+  ) {
+
+    startNewWave();
+
+
+    waveRestTimer =
+      randomRange(
+        CONFIG.waveRestMin,
+        CONFIG.waveRestMax
+      );
+  }
+}
+
+
+// ============================================================
+// GROUND HAZARDS
+//
+// Only jump remains. No dodge mechanic exists.
+// ============================================================
+
+function spawnGroundHazard() {
+
+  if (
+    mode !==
+    MODE.CHASE
+  ) {
+    return;
+  }
+
+
+  groundHazards.push({
 
     relX:
       W *
-      0.48 +
-      80,
+      0.52 +
+      randomRange(
+        70,
+        150
+      ),
 
     speed:
       randomRange(
-        100,
+        105,
         135
       ),
 
-    resolved:
+    warning:
       false
   });
 }
 
 
+let groundHazardTimer =
+  4.4;
+
+
 // ============================================================
-// ENEMY DEFEATED
+// ENEMY DEFEAT
 // ============================================================
 
 function defeatEnemy(
@@ -1761,7 +1915,9 @@ function defeatEnemy(
 ) {
 
   const enemy =
-    enemies[index];
+    enemies[
+      index
+    ];
 
 
   relationshipDistance =
@@ -1779,9 +1935,9 @@ function defeatEnemy(
 
   spawnSparkles(
     positions.debashis +
-    enemy.relX,
+      enemy.relX,
     groundY() -
-    55,
+      58,
     "#ffd08c",
     17
   );
@@ -1801,7 +1957,7 @@ function defeatEnemy(
 
   showMessage(
     "♥ Closer",
-    0.75
+    0.62
   );
 
 
@@ -1821,7 +1977,7 @@ function defeatEnemy(
 
 
 // ============================================================
-// INCOMING ATTACKS AIMED AT PRIYANKA
+// ENEMY RANGED ATTACK
 // ============================================================
 
 function spawnIncomingAttack(
@@ -1831,12 +1987,10 @@ function spawnIncomingAttack(
   incomingAttacks.push({
 
     life:
-      CONFIG
-        .enemyAttackTravelTime,
+      CONFIG.enemyAttackTravelTime,
 
     duration:
-      CONFIG
-        .enemyAttackTravelTime,
+      CONFIG.enemyAttackTravelTime,
 
     sourceOffset:
       enemy.relX,
@@ -1847,8 +2001,8 @@ function spawnIncomingAttack(
 
 
   showMessage(
-    "Dodge!",
-    0.65
+    "Jump!",
+    0.58
   );
 }
 
@@ -1917,9 +2071,7 @@ function startStory() {
 
   startOverlay
     .classList
-    .add(
-      "hidden"
-    );
+    .add("hidden");
 
 
   mode =
@@ -1928,26 +2080,34 @@ function startStory() {
 
   meeting.priyankaX =
     W *
-    0.36;
+    0.30;
 
 
   meeting.debashisX =
     W *
-    0.80;
+    0.78;
 
 
   meeting.targetDebashisX =
     W *
-    0.56;
+    0.61;
 
 
   meeting.phaseTime =
     0;
 
 
+  // Priyanka is facing Debashis.
+  player.facing =
+    1;
+
   player.state =
     "idle";
 
+
+  // Debashis walks toward Priyanka from the right.
+  debashis.facing =
+    -1;
 
   debashis.state =
     "walkL";
@@ -1968,11 +2128,24 @@ function startDialogue() {
     MODE.DIALOGUE;
 
 
-  dialogueBox
+  // Both are now completely still and face one another.
+  player.state =
+    "idle";
+
+  player.facing =
+    1;
+
+
+  debashis.state =
+    "idle";
+
+  debashis.facing =
+    -1;
+
+
+  speechBubble
     .classList
-    .remove(
-      "hidden"
-    );
+    .remove("hidden");
 
 
   dialogueIndex =
@@ -1993,11 +2166,9 @@ function nextDialogue() {
     dialogueSequence.length
   ) {
 
-    dialogueBox
+    speechBubble
       .classList
-      .add(
-        "hidden"
-      );
+      .add("hidden");
 
 
     mode =
@@ -2008,9 +2179,17 @@ function nextDialogue() {
       0;
 
 
+    // Priyanka turns away from Debashis and runs left.
+    player.facing =
+      -1;
+
     player.state =
       "runL";
 
+
+    // Debashis remains standing and looking toward her.
+    debashis.facing =
+      -1;
 
     debashis.state =
       "idle";
@@ -2026,18 +2205,19 @@ function nextDialogue() {
     ];
 
 
-  dialogueSpeaker
-    .textContent =
+  speechName.textContent =
     item.speaker;
 
 
-  dialogueText
-    .textContent =
+  speechText.textContent =
     item.text;
 
 
   dialogueTimer =
     item.duration;
+
+
+  updateSpeechBubblePosition();
 
 
   gameAudio.play(
@@ -2068,45 +2248,53 @@ function beginChase() {
   player.state =
     "idle";
 
+  player.facing =
+    1;
+
 
   debashis.state =
     "idle";
 
+  debashis.facing =
+    1;
+
 
   hud
     .classList
-    .remove(
-      "hidden"
-    );
+    .remove("hidden");
 
 
   mobileControls
     .classList
-    .remove(
-      "hidden"
-    );
+    .remove("hidden");
 
 
-  enemySpawnTimer =
-    0.65;
+  waveRemaining =
+    0;
+
+  waveRestTimer =
+    0.25;
+
+  waveSpawnTimer =
+    0;
 
 
-  hazardSpawnTimer =
-    4.0;
+  groundHazardTimer =
+    3.3;
 
 
   updateHud();
 
 
   showMessage(
-    "Enemies are coming — protect Debashis ♥",
-    2.2
+    "Priyanka sees danger near Debashis — protect him ♥",
+    2.0
   );
 }
 
 
 // ============================================================
-// GAME OVER / RESET
+// GAME OVER
 // ============================================================
 
 function triggerGameOver() {
@@ -2117,16 +2305,12 @@ function triggerGameOver() {
 
   mobileControls
     .classList
-    .add(
-      "hidden"
-    );
+    .add("hidden");
 
 
   gameOverOverlay
     .classList
-    .remove(
-      "hidden"
-    );
+    .remove("hidden");
 }
 
 
@@ -2135,13 +2319,13 @@ function restartGameplay() {
   enemies.length =
     0;
 
-  hearts.length =
+  heartShots.length =
     0;
 
   incomingAttacks.length =
     0;
 
-  hazards.length =
+  groundHazards.length =
     0;
 
   particles.length =
@@ -2150,7 +2334,6 @@ function restartGameplay() {
 
   player.health =
     CONFIG.priyankaMaxHealth;
-
 
   player.y =
     0;
@@ -2184,9 +2367,7 @@ function restartGameplay() {
 
   gameOverOverlay
     .classList
-    .add(
-      "hidden"
-    );
+    .add("hidden");
 
 
   beginChase();
@@ -2194,7 +2375,7 @@ function restartGameplay() {
 
 
 // ============================================================
-// REUNION / ANNIVERSARY
+// REUNION
 // ============================================================
 
 function beginReunion() {
@@ -2203,7 +2384,6 @@ function beginReunion() {
     mode !==
     MODE.CHASE
   ) {
-
     return;
   }
 
@@ -2218,19 +2398,16 @@ function beginReunion() {
   incomingAttacks.length =
     0;
 
-  hazards.length =
+  groundHazards.length =
     0;
 
 
   mobileControls
     .classList
-    .add(
-      "hidden"
-    );
+    .add("hidden");
 
 
-  gameHint
-    .textContent =
+  gameHint.textContent =
     "Together ♥";
 
 
@@ -2246,7 +2423,7 @@ function beginReunion() {
 
   for (
     let i = 0;
-    i < 70;
+    i < 80;
     i++
   ) {
 
@@ -2312,10 +2489,9 @@ function beginReunion() {
 
         celebrationOverlay
           .classList
-          .remove(
-            "hidden"
-          );
+          .remove("hidden");
       }
+
     },
     1100
   );
@@ -2326,9 +2502,7 @@ function continueTogether() {
 
   celebrationOverlay
     .classList
-    .add(
-      "hidden"
-    );
+    .add("hidden");
 
 
   mode =
@@ -2349,30 +2523,28 @@ function continueTogether() {
 
   hud
     .classList
-    .remove(
-      "hidden"
-    );
+    .remove("hidden");
 
 
   mobileControls
     .classList
-    .remove(
-      "hidden"
-    );
+    .remove("hidden");
 
 
-  gameHint
-    .textContent =
+  gameHint.textContent =
     "Together Forever ♥";
 
 
-  enemySpawnTimer =
-    1.3;
+  waveRemaining =
+    0;
+
+  waveRestTimer =
+    0.6;
 
 
   showMessage(
-    "Now they face the journey together ♥",
-    2.4
+    "Now Priyanka leads and they fight together ♥",
+    2.2
   );
 
 
@@ -2384,9 +2556,7 @@ function closeStory() {
 
   fadeScreen
     .classList
-    .add(
-      "on"
-    );
+    .add("on");
 
 
   setTimeout(
@@ -2394,23 +2564,17 @@ function closeStory() {
 
       celebrationOverlay
         .classList
-        .add(
-          "hidden"
-        );
+        .add("hidden");
 
 
       closedOverlay
         .classList
-        .remove(
-          "hidden"
-        );
+        .remove("hidden");
 
 
       fadeScreen
         .classList
-        .remove(
-          "on"
-        );
+        .remove("on");
 
 
       mode =
@@ -2420,18 +2584,11 @@ function closeStory() {
       gameAudio.music.pause();
 
 
-      // Browsers usually block window.close()
-      // unless the window was opened by script.
       try {
-
         window.close();
-
       }
-      catch (
-        error
-      ) {
-
-        // Fallback screen stays visible.
+      catch (error) {
+        // Fallback screen remains visible.
       }
 
     },
@@ -2484,7 +2641,7 @@ function updateVertical(
 
 
 // ============================================================
-// UPDATE GAMEPLAY
+// GAMEPLAY UPDATE
 // ============================================================
 
 function updateGameplay(
@@ -2498,7 +2655,6 @@ function updateGameplay(
   if (
     keys.left
   ) {
-
     movement--;
   }
 
@@ -2506,7 +2662,6 @@ function updateGameplay(
   if (
     keys.right
   ) {
-
     movement++;
   }
 
@@ -2560,8 +2715,6 @@ function updateGameplay(
     if (
       player.grounded &&
       player.attacking <=
-        0 &&
-      player.dodging <=
         0
     ) {
 
@@ -2585,8 +2738,6 @@ function updateGameplay(
   else if (
     player.grounded &&
     player.attacking <=
-      0 &&
-    player.dodging <=
       0
   ) {
 
@@ -2597,24 +2748,11 @@ function updateGameplay(
 
 
   if (
-    !player.grounded &&
-    player.dodging <=
-      0
+    !player.grounded
   ) {
 
     setMirroredState(
       "jump"
-    );
-  }
-
-
-  if (
-    player.dodging >
-    0
-  ) {
-
-    setMirroredState(
-      "dodge"
     );
   }
 
@@ -2654,22 +2792,6 @@ function updateGameplay(
     );
 
 
-  player.dodging =
-    Math.max(
-      0,
-      player.dodging -
-      dt
-    );
-
-
-  debashis.dodging =
-    Math.max(
-      0,
-      debashis.dodging -
-      dt
-    );
-
-
   player.invulnerable =
     Math.max(
       0,
@@ -2701,12 +2823,17 @@ function updateGameplay(
   maintainChunks();
 
 
+  updateEnemyDirector(
+    dt
+  );
+
+
   updateEnemies(
     dt
   );
 
 
-  updateHearts(
+  updateHeartShots(
     dt
   );
 
@@ -2716,7 +2843,7 @@ function updateGameplay(
   );
 
 
-  updateHazards(
+  updateGroundHazards(
     dt
   );
 
@@ -2726,71 +2853,27 @@ function updateGameplay(
   );
 
 
-  enemySpawnTimer -=
-    dt;
-
-
-  if (
-    enemySpawnTimer <=
-    0
-  ) {
-
-    spawnEnemy();
-
-
-    const progress =
-      clamp(
-        (
-          CONFIG.startDistance -
-          relationshipDistance
-        ) /
-        (
-          CONFIG.startDistance -
-          CONFIG.reunionDistance
-        ),
-        0,
-        1
-      );
-
-
-    const difficultyFactor =
-      lerp(
-        1,
-        0.73,
-        progress
-      );
-
-
-    enemySpawnTimer =
-      randomRange(
-        CONFIG.enemySpawnMin,
-        CONFIG.enemySpawnMax
-      ) *
-      difficultyFactor;
-  }
-
-
   if (
     mode ===
     MODE.CHASE
   ) {
 
-    hazardSpawnTimer -=
+    groundHazardTimer -=
       dt;
 
 
     if (
-      hazardSpawnTimer <=
+      groundHazardTimer <=
       0
     ) {
 
-      spawnHazard();
+      spawnGroundHazard();
 
 
-      hazardSpawnTimer =
+      groundHazardTimer =
         randomRange(
-          4.4,
-          7.2
+          5.0,
+          8.2
         );
     }
   }
@@ -2798,7 +2881,7 @@ function updateGameplay(
 
 
 // ============================================================
-// ENEMY UPDATE
+// ENEMIES
 // ============================================================
 
 function updateEnemies(
@@ -2815,7 +2898,15 @@ function updateEnemies(
   ) {
 
     const enemy =
-      enemies[i];
+      enemies[
+        i
+      ];
+
+
+    const def =
+      ENEMY_TYPES[
+        enemy.type
+      ];
 
 
     enemy.relX -=
@@ -2827,13 +2918,22 @@ function updateEnemies(
       dt;
 
 
+    enemy.flash =
+      Math.max(
+        0,
+        enemy.flash -
+        dt
+      );
+
+
     if (
+      def.ranged &&
       !enemy.attacked &&
       enemy.attackTimer <=
         0 &&
       enemy.relX <
         W *
-        0.31 &&
+        0.34 &&
       Math.random() <
         CONFIG.enemyAttackChance
     ) {
@@ -2848,10 +2948,9 @@ function updateEnemies(
     }
 
 
-    // Enemy reached Debashis
     if (
       enemy.relX <=
-      4
+      2
     ) {
 
       enemies.splice(
@@ -2867,10 +2966,10 @@ function updateEnemies(
 
 
 // ============================================================
-// HEART PROJECTILES
+// HEART SHOTS
 // ============================================================
 
-function updateHearts(
+function updateHeartShots(
   dt
 ) {
 
@@ -2880,23 +2979,25 @@ function updateHearts(
 
   for (
     let i =
-      hearts.length -
+      heartShots.length -
       1;
     i >=
       0;
     i--
   ) {
 
-    const heart =
-      hearts[i];
+    const shot =
+      heartShots[
+        i
+      ];
 
 
-    heart.x +=
-      heart.vx *
+    shot.x +=
+      shot.vx *
       dt;
 
 
-    heart.life -=
+    shot.life -=
       dt;
 
 
@@ -2914,7 +3015,15 @@ function updateHearts(
     ) {
 
       const enemy =
-        enemies[e];
+        enemies[
+          e
+        ];
+
+
+      const def =
+        ENEMY_TYPES[
+          enemy.type
+        ];
 
 
       const ex =
@@ -2923,25 +3032,36 @@ function updateHearts(
 
 
       const ey =
-        groundY() -
-        53;
+        getEnemyY(
+          enemy,
+          def
+        );
+
+
+      const hitRadius =
+        def.flying
+          ? 42
+          : 48;
 
 
       if (
         Math.abs(
-          heart.x -
+          shot.x -
           ex
         ) <
-          enemy.radius +
-          15 &&
+          hitRadius &&
         Math.abs(
-          heart.y -
+          shot.y -
           ey
         ) <
-          45
+          50
       ) {
 
         enemy.hp--;
+
+
+        enemy.flash =
+          0.12;
 
 
         spawnSparkles(
@@ -2952,7 +3072,7 @@ function updateHearts(
         );
 
 
-        hearts.splice(
+        heartShots.splice(
           i,
           1
         );
@@ -2980,11 +3100,11 @@ function updateHearts(
 
     if (
       !hit &&
-      heart.life <=
+      shot.life <=
       0
     ) {
 
-      hearts.splice(
+      heartShots.splice(
         i,
         1
       );
@@ -2994,7 +3114,9 @@ function updateHearts(
 
 
 // ============================================================
-// ENEMY ATTACKS AGAINST PRIYANKA
+// RANGED ENEMY ATTACKS
+//
+// With dodge removed, the player must JUMP over these.
 // ============================================================
 
 function updateIncomingAttacks(
@@ -3011,7 +3133,9 @@ function updateIncomingAttacks(
   ) {
 
     const attack =
-      incomingAttacks[i];
+      incomingAttacks[
+        i
+      ];
 
 
     attack.life -=
@@ -3029,9 +3153,9 @@ function updateIncomingAttacks(
 
 
       const avoided =
-        player.dodging >
-          0 ||
-        !player.grounded;
+        !player.grounded &&
+        player.y >
+          38;
 
 
       if (
@@ -3045,8 +3169,8 @@ function updateIncomingAttacks(
       else {
 
         showMessage(
-          "Nice dodge ♥",
-          0.7
+          "Nice jump ♥",
+          0.62
         );
       }
 
@@ -3061,16 +3185,16 @@ function updateIncomingAttacks(
 
 
 // ============================================================
-// JUMP / DODGE HAZARDS AT DEBASHIS
+// GROUND HAZARDS
 // ============================================================
 
-function updateHazards(
+function updateGroundHazards(
   dt
 ) {
 
   for (
     let i =
-      hazards.length -
+      groundHazards.length -
       1;
     i >=
       0;
@@ -3078,7 +3202,9 @@ function updateHazards(
   ) {
 
     const hazard =
-      hazards[i];
+      groundHazards[
+        i
+      ];
 
 
     hazard.relX -=
@@ -3088,7 +3214,7 @@ function updateHazards(
 
     if (
       hazard.relX <
-        90 &&
+        115 &&
       !hazard.warning
     ) {
 
@@ -3097,38 +3223,21 @@ function updateHazards(
 
 
       showMessage(
-        hazard.type ===
-          "thorn"
-          ? "Jump!"
-          : "Dodge!",
-        0.75
+        "Jump!",
+        0.62
       );
     }
 
 
     if (
       hazard.relX <=
-        0
+      0
     ) {
 
-      let safe =
-        false;
-
-
-      if (
-        hazard.type ===
-        "thorn"
-      ) {
-
-        safe =
-          !debashis.grounded;
-      }
-      else {
-
-        safe =
-          debashis.dodging >
-          0;
-      }
+      const safe =
+        !debashis.grounded &&
+        debashis.y >
+          34;
 
 
       if (
@@ -3141,12 +3250,12 @@ function updateHazards(
 
         showMessage(
           "Saved ♥",
-          0.65
+          0.58
         );
       }
 
 
-      hazards.splice(
+      groundHazards.splice(
         i,
         1
       );
@@ -3173,7 +3282,9 @@ function updateParticles(
   ) {
 
     const p =
-      particles[i];
+      particles[
+        i
+      ];
 
 
     p.x +=
@@ -3210,7 +3321,7 @@ function updateParticles(
 
 
 // ============================================================
-// MEETING / DIALOGUE / RUNAWAY UPDATE
+// OPENING UPDATE
 // ============================================================
 
 function updateStory(
@@ -3235,7 +3346,7 @@ function updateStory(
 
 
     meeting.debashisX -=
-      92 *
+      86 *
       dt;
 
 
@@ -3252,6 +3363,10 @@ function updateStory(
         "idle";
 
 
+      debashis.facing =
+        -1;
+
+
       startDialogue();
     }
   }
@@ -3262,8 +3377,26 @@ function updateStory(
     MODE.DIALOGUE
   ) {
 
+    // Explicitly keep both facing each other.
+    player.state =
+      "idle";
+
+    player.facing =
+      1;
+
+
+    debashis.state =
+      "idle";
+
+    debashis.facing =
+      -1;
+
+
     dialogueTimer -=
       dt;
+
+
+    updateSpeechBubblePosition();
 
 
     if (
@@ -3285,37 +3418,26 @@ function updateStory(
       dt;
 
 
-    worldScroll =
-      Math.max(
-        0,
-        worldScroll -
-        20 *
-        dt
-      );
-
-
-    // Move Priyanka left on screen during cinematic.
     meeting.priyankaX -=
-      185 *
+      205 *
       dt;
 
 
-    // As the camera follows her, keep her from disappearing.
     if (
       meeting.priyankaX <
       W *
-      0.20
+      0.14
     ) {
 
       meeting.priyankaX =
         W *
-        0.20;
+        0.14;
     }
 
 
     if (
       meeting.phaseTime >
-      3.1
+      3.2
     ) {
 
       beginChase();
@@ -3416,7 +3538,7 @@ function update(
 
 
 // ============================================================
-// DRAW ENVIRONMENT
+// ENVIRONMENT DRAW HELPERS
 // ============================================================
 
 function drawCrop(
@@ -3430,7 +3552,6 @@ function drawCrop(
   if (
     !environmentAtlas.complete
   ) {
-
     return;
   }
 
@@ -3451,7 +3572,7 @@ function drawCrop(
 }
 
 
-function drawRepeatedStrip(
+function drawHorizontalScene(
   crop,
   y,
   height,
@@ -3461,7 +3582,6 @@ function drawRepeatedStrip(
   if (
     !environmentAtlas.complete
   ) {
-
     return;
   }
 
@@ -3482,6 +3602,7 @@ function drawRepeatedStrip(
     width;
 
 
+  // Horizontal repetition only.
   for (
     let x =
       offset -
@@ -3497,16 +3618,22 @@ function drawRepeatedStrip(
       crop,
       x,
       y,
-      width,
+      width +
+        1,
       height
     );
   }
 }
 
 
+// ============================================================
+// DRAW ENVIRONMENT
+// ============================================================
+
 function drawEnvironment() {
 
-  const gradient =
+  // Base sky.
+  const skyGradient =
     ctx.createLinearGradient(
       0,
       0,
@@ -3515,32 +3642,32 @@ function drawEnvironment() {
     );
 
 
-  gradient.addColorStop(
+  skyGradient.addColorStop(
     0,
-    "#26103c"
+    "#24114b"
   );
 
 
-  gradient.addColorStop(
-    0.45,
-    "#754268"
+  skyGradient.addColorStop(
+    0.42,
+    "#6a4e88"
   );
 
 
-  gradient.addColorStop(
-    0.78,
-    "#d78092"
+  skyGradient.addColorStop(
+    0.72,
+    "#d78ca2"
   );
 
 
-  gradient.addColorStop(
+  skyGradient.addColorStop(
     1,
-    "#f3c39f"
+    "#f0c29f"
   );
 
 
   ctx.fillStyle =
-    gradient;
+    skyGradient;
 
 
   ctx.fillRect(
@@ -3551,51 +3678,81 @@ function drawEnvironment() {
   );
 
 
-  drawRepeatedStrip(
+  /*
+  ----------------------------------------------------------
+  IMPORTANT:
+  We intentionally use ONE large distant scenic layer.
+
+  V5 used several full scenic strips stacked vertically.
+  On a phone that could look like the same world repeating
+  downward. V6 does not do that.
+  ----------------------------------------------------------
+  */
+
+  drawHorizontalScene(
     ENV.sky,
     0,
     H *
-      0.22,
-    0.06
+      0.63,
+    0.055
   );
 
 
-  drawRepeatedStrip(
-    ENV.mid,
-    H *
-      0.19,
-    H *
-      0.23,
-    0.12
+  // Blend the lower part of the sky into the garden.
+  const haze =
+    ctx.createLinearGradient(
+      0,
+      H *
+        0.42,
+      0,
+      H *
+        0.72
+    );
+
+
+  haze.addColorStop(
+    0,
+    "rgba(116,94,142,0)"
   );
 
 
-  drawRepeatedStrip(
+  haze.addColorStop(
+    1,
+    "rgba(93,79,88,.38)"
+  );
+
+
+  ctx.fillStyle =
+    haze;
+
+
+  ctx.fillRect(
+    0,
+    H *
+      0.42,
+    W,
+    H *
+      0.30
+  );
+
+
+  // A single forest midground band.
+  drawHorizontalScene(
     ENV.forest,
     H *
-      0.38,
+      0.51,
     H *
-      0.25,
-    0.26
-  );
-
-
-  drawRepeatedStrip(
-    ENV.front,
-    H *
-      0.61,
-    H *
-      0.12,
-    0.48
+      0.23,
+    0.20
   );
 
 
   drawWorldDecorations();
 
 
-  // Ground
+  // Ground base.
   ctx.fillStyle =
-    "#2c6847";
+    "#315f42";
 
 
   ctx.fillRect(
@@ -3607,6 +3764,17 @@ function drawEnvironment() {
   );
 
 
+  // Foreground garden edge as ONE thin strip.
+  drawHorizontalScene(
+    ENV.foreground,
+    groundY() -
+      35,
+    62,
+    0.75
+  );
+
+
+  // Ground tiles.
   if (
     environmentAtlas.complete
   ) {
@@ -3632,17 +3800,52 @@ function drawEnvironment() {
         ENV.grass,
         x,
         groundY() -
-        16,
+          9,
         tileW,
-        50
+        45
       );
     }
   }
+
+
+  // Subtle near-ground mist.
+  const groundShade =
+    ctx.createLinearGradient(
+      0,
+      groundY(),
+      0,
+      H
+    );
+
+
+  groundShade.addColorStop(
+    0,
+    "rgba(21,45,29,0)"
+  );
+
+
+  groundShade.addColorStop(
+    1,
+    "rgba(10,25,17,.42)"
+  );
+
+
+  ctx.fillStyle =
+    groundShade;
+
+
+  ctx.fillRect(
+    0,
+    groundY(),
+    W,
+    H -
+    groundY()
+  );
 }
 
 
 // ============================================================
-// PROCEDURAL DECORATIONS
+// DRAW PROCEDURAL DECORATIONS
 // ============================================================
 
 function drawWorldDecorations() {
@@ -3650,7 +3853,6 @@ function drawWorldDecorations() {
   if (
     !environmentAtlas.complete
   ) {
-
     return;
   }
 
@@ -3672,12 +3874,11 @@ function drawWorldDecorations() {
 
       if (
         sx <
-          -220 ||
+          -230 ||
         sx >
           W +
-          220
+          230
       ) {
-
         continue;
       }
 
@@ -3691,17 +3892,16 @@ function drawWorldDecorations() {
       if (
         !crop
       ) {
-
         continue;
       }
 
 
       let baseW =
-        120;
+        108;
 
 
       let baseH =
-        110;
+        100;
 
 
       if (
@@ -3710,10 +3910,10 @@ function drawWorldDecorations() {
       ) {
 
         baseW =
-          155;
+          148;
 
         baseH =
-          135;
+          130;
       }
 
 
@@ -3725,10 +3925,10 @@ function drawWorldDecorations() {
       ) {
 
         baseW =
-          150;
+          140;
 
         baseH =
-          105;
+          100;
       }
 
 
@@ -3745,11 +3945,11 @@ function drawWorldDecorations() {
       drawCrop(
         crop,
         sx -
-        w /
-        2,
+          w /
+          2,
         groundY() -
-        h +
-        2,
+          h -
+          4,
         w,
         h
       );
@@ -3759,7 +3959,7 @@ function drawWorldDecorations() {
 
 
 // ============================================================
-// DRAW CHARACTER SPRITE
+// CHARACTER DRAWING
 // ============================================================
 
 function drawCharacter(
@@ -3771,13 +3971,13 @@ function drawCharacter(
   x,
   y,
   facing,
-  scale = 1
+  scale = 1,
+  options = {}
 ) {
 
   if (
     !image.complete
   ) {
-
     return;
   }
 
@@ -3789,12 +3989,23 @@ function drawCharacter(
     animations.idle;
 
 
-  const frame =
+  let frame =
     Math.floor(
       animTime *
       anim.fps
     ) %
     anim.frames;
+
+
+  if (
+    Number.isInteger(
+      options.fixedFrame
+    )
+  ) {
+
+    frame =
+      options.fixedFrame;
+  }
 
 
   const sx =
@@ -3826,19 +4037,44 @@ function drawCharacter(
   );
 
 
-  // Rows already include left/right for walking/running.
-  // For jump/dodge/attack use facing flip.
+  let flip =
+    false;
+
+
   if (
+    options.forceFacing ===
+    "left"
+  ) {
+
+    flip =
+      true;
+  }
+  else if (
+    options.forceFacing ===
+    "right"
+  ) {
+
+    flip =
+      false;
+  }
+  else if (
     (
       state ===
         "jump" ||
-      state ===
-        "dodge" ||
       state ===
         "attack"
     ) &&
     facing <
       0
+  ) {
+
+    flip =
+      true;
+  }
+
+
+  if (
+    flip
   ) {
 
     ctx.scale(
@@ -3870,7 +4106,7 @@ function drawCharacter(
 
 
 // ============================================================
-// DRAW OPENING STORY
+// OPENING CHARACTER DRAW
 // ============================================================
 
 function drawOpeningCharacters() {
@@ -3882,13 +4118,78 @@ function drawOpeningCharacters() {
   const px =
     meeting.priyankaX ||
     W *
-      0.36;
+      0.30;
 
 
   const dx =
     meeting.debashisX ||
     W *
       0.78;
+
+
+  if (
+    mode ===
+    MODE.DIALOGUE
+  ) {
+
+    /*
+    ---------------------------------------------------------
+    Critical opening fix:
+    Use a fixed side-facing frame instead of animating through
+    the idle turn-around frames.
+
+    Priyanka: side frame facing right.
+    Debashis: same type of side frame mirrored to face left.
+    ---------------------------------------------------------
+    */
+
+    drawCharacter(
+      priyankaAtlas,
+      PRIYANKA_ANIMS,
+      PRIYANKA_CELL,
+      "idle",
+      0,
+      px,
+      base,
+      1,
+      0.88,
+      {
+        fixedFrame:1,
+        forceFacing:"right"
+      }
+    );
+
+
+    drawCharacter(
+      debashisAtlas,
+      DEBASHIS_ANIMS,
+      DEBASHIS_CELL,
+      "idle",
+      0,
+      dx,
+      base,
+      -1,
+      0.88,
+      {
+        fixedFrame:1,
+        forceFacing:"left"
+      }
+    );
+
+
+    return;
+  }
+
+
+  // Priyanka standing before the meeting.
+  const priOptions =
+    mode ===
+    MODE.MEETING
+      ? {
+          fixedFrame:1,
+          forceFacing:"right"
+        }
+      : {};
 
 
   drawCharacter(
@@ -3900,7 +4201,8 @@ function drawOpeningCharacters() {
     px,
     base,
     player.facing,
-    1.05
+    0.88,
+    priOptions
   );
 
 
@@ -3913,19 +4215,59 @@ function drawOpeningCharacters() {
     dx,
     base,
     debashis.facing,
-    1.03
+    0.88,
+    mode === MODE.MEETING
+      ? {}
+      : {
+          fixedFrame:1,
+          forceFacing:"left"
+        }
   );
+
+
+  // Small anger mark during the runaway.
+  if (
+    mode ===
+      MODE.RUNAWAY &&
+    meeting.phaseTime <
+      1.35
+  ) {
+
+    ctx.save();
+
+    ctx.font =
+      "bold 25px sans-serif";
+
+    ctx.fillStyle =
+      "#ff4267";
+
+    ctx.textAlign =
+      "center";
+
+    ctx.fillText(
+      "!",
+      px,
+      base -
+        150
+    );
+
+    ctx.restore();
+  }
 }
 
 
 // ============================================================
-// DRAW GAMEPLAY CHARACTERS
+// GAMEPLAY CHARACTERS
 // ============================================================
 
 function drawGameplayCharacters() {
 
   const positions =
     getCharacterScreenPositions();
+
+
+  const scale =
+    CONFIG.characterScale;
 
 
   drawCharacter(
@@ -3936,9 +4278,9 @@ function drawGameplayCharacters() {
     player.animTime,
     positions.priyanka,
     groundY() -
-    player.y,
+      player.y,
     player.facing,
-    1
+    scale
   );
 
 
@@ -3950,16 +4292,217 @@ function drawGameplayCharacters() {
     debashis.animTime,
     positions.debashis,
     groundY() -
-    debashis.y,
+      debashis.y,
     debashis.facing,
-    0.98
+    scale *
+      0.98
   );
 }
 
 
 // ============================================================
-// DRAW ENEMIES
+// ENEMY DRAWING
 // ============================================================
+
+function getEnemyY(
+  enemy,
+  def
+) {
+
+  if (
+    def.flying
+  ) {
+
+    return (
+      groundY() -
+      108 +
+      Math.sin(
+        time *
+        4.2 +
+        enemy.bob
+      ) *
+      13
+    );
+  }
+
+
+  return (
+    groundY() -
+    47 +
+    Math.sin(
+      time *
+      3.4 +
+      enemy.bob
+    ) *
+    2
+  );
+}
+
+
+function drawEnemySprite(
+  enemy,
+  x,
+  y
+) {
+
+  const def =
+    ENEMY_TYPES[
+      enemy.type
+    ];
+
+
+  const crop =
+    def.crop;
+
+
+  if (
+    !environmentAtlas.complete
+  ) {
+
+    // Fallback only.
+    ctx.fillStyle =
+      "#57274f";
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x,
+      y,
+      28,
+      0,
+      Math.PI *
+      2
+    );
+
+    ctx.fill();
+
+    return;
+  }
+
+
+  const naturalRatio =
+    crop.w /
+    crop.h;
+
+
+  const baseH =
+    def.flying
+      ? 72
+      : 83;
+
+
+  const h =
+    baseH *
+    def.scale;
+
+
+  const w =
+    h *
+    naturalRatio;
+
+
+  ctx.save();
+
+
+  if (
+    enemy.flash >
+    0
+  ) {
+
+    ctx.globalAlpha =
+      0.55 +
+      Math.sin(
+        enemy.flash *
+        90
+      ) *
+      0.35;
+  }
+
+
+  // Flip illustrated enemies so they face toward Debashis.
+  ctx.translate(
+    x,
+    y
+  );
+
+
+  ctx.scale(
+    -1,
+    1
+  );
+
+
+  ctx.drawImage(
+    environmentAtlas,
+
+    crop.x,
+    crop.y,
+    crop.w,
+    crop.h,
+
+    -w /
+      2,
+    -h /
+      2,
+    w,
+    h
+  );
+
+
+  ctx.restore();
+
+
+  // HP bar for multi-hit enemies.
+  if (
+    enemy.maxHp >
+    1
+  ) {
+
+    const barW =
+      42;
+
+
+    ctx.fillStyle =
+      "rgba(25,8,22,.62)";
+
+
+    ctx.fillRect(
+      x -
+        barW /
+        2,
+      y -
+        h /
+        2 -
+        11,
+      barW,
+      5
+    );
+
+
+    ctx.fillStyle =
+      "#ff7ca8";
+
+
+    ctx.fillRect(
+      x -
+        barW /
+        2,
+      y -
+        h /
+        2 -
+        11,
+      barW *
+        clamp(
+          enemy.hp /
+          enemy.maxHp,
+          0,
+          1
+        ),
+      5
+    );
+  }
+}
+
 
 function drawEnemies() {
 
@@ -3972,141 +4515,35 @@ function drawEnemies() {
     of enemies
   ) {
 
+    const def =
+      ENEMY_TYPES[
+        enemy.type
+      ];
+
+
     const x =
       positions.debashis +
       enemy.relX;
 
 
     const y =
-      groundY() -
-      48 +
-      Math.sin(
-        time *
-        4 +
-        enemy.bob
-      ) *
-      5;
+      getEnemyY(
+        enemy,
+        def
+      );
 
 
-    ctx.save();
-
-
-    ctx.shadowColor =
-      enemy.color;
-
-
-    ctx.shadowBlur =
-      18;
-
-
-    ctx.fillStyle =
-      enemy.color;
-
-
-    ctx.beginPath();
-
-
-    ctx.ellipse(
+    drawEnemySprite(
+      enemy,
       x,
-      y,
-      enemy.radius,
-      enemy.radius *
-      1.18,
-      0,
-      0,
-      Math.PI *
-      2
+      y
     );
-
-
-    ctx.fill();
-
-
-    ctx.shadowBlur =
-      0;
-
-
-    ctx.fillStyle =
-      "#ff8dba";
-
-
-    ctx.beginPath();
-
-    ctx.arc(
-      x -
-      8,
-      y -
-      7,
-      3.5,
-      0,
-      Math.PI *
-      2
-    );
-
-    ctx.arc(
-      x +
-      8,
-      y -
-      7,
-      3.5,
-      0,
-      Math.PI *
-      2
-    );
-
-    ctx.fill();
-
-
-    // HP indicators for stronger enemies
-    if (
-      enemy.hp >
-      1
-    ) {
-
-      ctx.fillStyle =
-        "rgba(20,4,15,.55)";
-
-
-      ctx.fillRect(
-        x -
-        22,
-        y -
-        48,
-        44,
-        5
-      );
-
-
-      ctx.fillStyle =
-        "#ff82ac";
-
-
-      ctx.fillRect(
-        x -
-        22,
-        y -
-        48,
-        44 *
-        clamp(
-          enemy.hp /
-          ENEMY_TYPES[
-            enemy.type
-          ].hp,
-          0,
-          1
-        ),
-        5
-      );
-    }
-
-
-    ctx.restore();
   }
 }
 
 
 // ============================================================
-// DRAW HEART PROJECTILES
+// HEART PROJECTILES
 // ============================================================
 
 function drawHeartShape(
@@ -4127,9 +4564,9 @@ function drawHeartShape(
 
   ctx.scale(
     size /
-    32,
+      32,
     size /
-    32
+      32
   );
 
 
@@ -4190,11 +4627,11 @@ function drawHeartShape(
 }
 
 
-function drawHearts() {
+function drawHeartShots() {
 
   for (
-    const heart
-    of hearts
+    const shot
+    of heartShots
   ) {
 
     ctx.save();
@@ -4205,13 +4642,13 @@ function drawHearts() {
 
 
     ctx.shadowBlur =
-      20;
+      17;
 
 
     drawHeartShape(
-      heart.x,
-      heart.y,
-      18,
+      shot.x,
+      shot.y,
+      16,
       "#ff5fa9"
     );
 
@@ -4221,9 +4658,9 @@ function drawHearts() {
 
 
     drawHeartShape(
-      heart.x,
-      heart.y,
-      9,
+      shot.x,
+      shot.y,
+      8,
       "#fff2f8"
     );
 
@@ -4234,7 +4671,7 @@ function drawHearts() {
 
 
 // ============================================================
-// DRAW INCOMING ATTACKS
+// ENEMY ATTACK DRAW
 // ============================================================
 
 function drawIncomingAttacks() {
@@ -4273,27 +4710,27 @@ function drawIncomingAttacks() {
 
     const y =
       groundY() -
-      86 -
+      72 -
       Math.sin(
         t *
         Math.PI
       ) *
-      90;
+      44;
 
 
     ctx.save();
 
 
     ctx.shadowColor =
-      "#822e9c";
+      "#7338cf";
 
 
     ctx.shadowBlur =
-      20;
+      18;
 
 
     ctx.fillStyle =
-      "#742a91";
+      "#7d45d8";
 
 
     ctx.beginPath();
@@ -4301,7 +4738,25 @@ function drawIncomingAttacks() {
     ctx.arc(
       x,
       y,
-      10,
+      9,
+      0,
+      Math.PI *
+      2
+    );
+
+    ctx.fill();
+
+
+    ctx.fillStyle =
+      "#e5d7ff";
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x,
+      y,
+      3,
       0,
       Math.PI *
       2
@@ -4316,10 +4771,10 @@ function drawIncomingAttacks() {
 
 
 // ============================================================
-// DRAW HAZARDS
+// GROUND HAZARD DRAW
 // ============================================================
 
-function drawHazards() {
+function drawGroundHazards() {
 
   const positions =
     getCharacterScreenPositions();
@@ -4327,7 +4782,7 @@ function drawHazards() {
 
   for (
     const hazard
-    of hazards
+    of groundHazards
   ) {
 
     const x =
@@ -4335,90 +4790,82 @@ function drawHazards() {
       hazard.relX;
 
 
-    if (
-      hazard.type ===
-      "thorn"
-    ) {
-
-      ctx.fillStyle =
-        "#426b35";
+    ctx.save();
 
 
-      ctx.beginPath();
-
-      ctx.moveTo(
-        x -
-        24,
-        groundY()
-      );
-
-      ctx.lineTo(
-        x -
-        12,
-        groundY() -
-        42
-      );
-
-      ctx.lineTo(
-        x,
-        groundY()
-      );
-
-      ctx.lineTo(
-        x +
-        13,
-        groundY() -
-        48
-      );
-
-      ctx.lineTo(
-        x +
-        25,
-        groundY()
-      );
-
-      ctx.closePath();
-
-      ctx.fill();
-    }
-    else {
-
-      ctx.strokeStyle =
-        "#70401f";
+    ctx.fillStyle =
+      "#315830";
 
 
-      ctx.lineWidth =
-        14;
+    ctx.strokeStyle =
+      "#203c26";
 
 
-      ctx.lineCap =
-        "round";
+    ctx.lineWidth =
+      2;
 
 
-      ctx.beginPath();
+    ctx.beginPath();
 
-      ctx.moveTo(
-        x -
-        35,
-        groundY() -
-        115
-      );
+    ctx.moveTo(
+      x -
+        27,
+      groundY()
+    );
 
-      ctx.lineTo(
-        x +
-        35,
-        groundY() -
-        115
-      );
+    ctx.lineTo(
+      x -
+        15,
+      groundY() -
+        37
+    );
 
-      ctx.stroke();
-    }
+    ctx.lineTo(
+      x -
+        5,
+      groundY()
+    );
+
+    ctx.lineTo(
+      x +
+        7,
+      groundY() -
+        46
+    );
+
+    ctx.lineTo(
+      x +
+        18,
+      groundY()
+    );
+
+    ctx.lineTo(
+      x +
+        28,
+      groundY() -
+        31
+    );
+
+    ctx.lineTo(
+      x +
+        37,
+      groundY()
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.stroke();
+
+
+    ctx.restore();
   }
 }
 
 
 // ============================================================
-// DRAW PARTICLES / CELEBRATION
+// PARTICLES / CELEBRATION
 // ============================================================
 
 function drawParticles() {
@@ -4520,7 +4967,7 @@ function drawCelebrationSky() {
       Math.min(
         58,
         W *
-        0.06
+          0.06
       )
     )}px Georgia`;
 
@@ -4528,9 +4975,9 @@ function drawCelebrationSky() {
   ctx.fillText(
     "Happy Halfway Anniversary",
     W /
-    2,
+      2,
     H *
-    0.20
+      0.20
   );
 
 
@@ -4548,7 +4995,7 @@ function drawCelebrationSky() {
       Math.min(
         38,
         W *
-        0.04
+          0.04
       )
     )}px Georgia`;
 
@@ -4556,9 +5003,9 @@ function drawCelebrationSky() {
   ctx.fillText(
     "Priyanka ♥ Debashis",
     W /
-    2,
+      2,
     H *
-    0.27
+      0.27
   );
 
 
@@ -4586,13 +5033,12 @@ function render() {
 
   if (
     mode ===
-      MODE.WAIT
+    MODE.WAIT
   ) {
 
-    // Show both characters even before tap.
     meeting.priyankaX =
       W *
-      0.36;
+      0.30;
 
 
     meeting.debashisX =
@@ -4608,7 +5054,39 @@ function render() {
       "idle";
 
 
-    drawOpeningCharacters();
+    // Even before start, face one another.
+    drawCharacter(
+      priyankaAtlas,
+      PRIYANKA_ANIMS,
+      PRIYANKA_CELL,
+      "idle",
+      0,
+      meeting.priyankaX,
+      groundY(),
+      1,
+      0.88,
+      {
+        fixedFrame:1,
+        forceFacing:"right"
+      }
+    );
+
+
+    drawCharacter(
+      debashisAtlas,
+      DEBASHIS_ANIMS,
+      DEBASHIS_CELL,
+      "idle",
+      0,
+      meeting.debashisX,
+      groundY(),
+      -1,
+      0.88,
+      {
+        fixedFrame:1,
+        forceFacing:"left"
+      }
+    );
   }
 
 
@@ -4634,7 +5112,7 @@ function render() {
       MODE.GAME_OVER
   ) {
 
-    drawHazards();
+    drawGroundHazards();
 
     drawEnemies();
 
@@ -4642,7 +5120,7 @@ function render() {
 
     drawGameplayCharacters();
 
-    drawHearts();
+    drawHeartShots();
 
     drawParticles();
   }
@@ -4691,9 +5169,7 @@ function bindHold(
 
       button
         .classList
-        .add(
-          "active"
-        );
+        .add("active");
     };
 
 
@@ -4711,9 +5187,7 @@ function bindHold(
 
       button
         .classList
-        .remove(
-          "active"
-        );
+        .remove("active");
     };
 
 
@@ -4777,21 +5251,6 @@ document
 
 document
   .getElementById(
-    "dodgeButton"
-  )
-  .addEventListener(
-    "pointerdown",
-    event => {
-
-      event.preventDefault();
-
-      dodge();
-    }
-  );
-
-
-document
-  .getElementById(
     "attackButton"
   )
   .addEventListener(
@@ -4817,7 +5276,6 @@ window.addEventListener(
       event.key ===
         "A"
     ) {
-
       keys.left =
         true;
     }
@@ -4831,7 +5289,6 @@ window.addEventListener(
       event.key ===
         "D"
     ) {
-
       keys.right =
         true;
     }
@@ -4841,7 +5298,6 @@ window.addEventListener(
       event.key ===
       "Shift"
     ) {
-
       keys.run =
         true;
     }
@@ -4864,20 +5320,6 @@ window.addEventListener(
       event.preventDefault();
 
       jump();
-    }
-
-
-    if (
-      (
-        event.key ===
-          "s" ||
-        event.key ===
-          "S"
-      ) &&
-      !event.repeat
-    ) {
-
-      dodge();
     }
 
 
@@ -4913,7 +5355,6 @@ window.addEventListener(
       event.key ===
         "A"
     ) {
-
       keys.left =
         false;
     }
@@ -4927,7 +5368,6 @@ window.addEventListener(
       event.key ===
         "D"
     ) {
-
       keys.right =
         false;
     }
@@ -4937,7 +5377,6 @@ window.addEventListener(
       event.key ===
       "Shift"
     ) {
-
       keys.run =
         false;
     }
@@ -4946,7 +5385,7 @@ window.addEventListener(
 
 
 // ============================================================
-// DOM BUTTONS
+// BUTTONS
 // ============================================================
 
 startButton.addEventListener(
@@ -5008,8 +5447,7 @@ soundButton.addEventListener(
       gameAudio.toggle();
 
 
-    soundButton
-      .textContent =
+    soundButton.textContent =
       enabled
         ? "♪"
         : "×";
@@ -5018,7 +5456,7 @@ soundButton.addEventListener(
 
 
 // ============================================================
-// MAIN LOOP
+// LOOP
 // ============================================================
 
 let previous =

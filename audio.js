@@ -13,9 +13,6 @@
     jump:
       "assets/audio/jump.mp3",
 
-    dodge:
-      "assets/audio/dodge.mp3",
-
     playerHit:
       "assets/audio/player_hit.mp3",
 
@@ -44,7 +41,6 @@
     constructor() {
 
       this.enabled = true;
-
       this.started = false;
 
       this.music = new Audio(
@@ -52,23 +48,18 @@
       );
 
       this.music.loop = true;
-
-      this.music.volume = 0.34;
-
+      this.music.volume = 0.30;
 
       this.sounds = {};
 
       for (
         const [name, src]
-        of Object.entries(
-          AUDIO_FILES
-        )
+        of Object.entries(AUDIO_FILES)
       ) {
 
         if (
           name === "music"
         ) {
-
           continue;
         }
 
@@ -89,7 +80,6 @@
       if (
         this.started
       ) {
-
         return;
       }
 
@@ -98,19 +88,13 @@
       if (
         !this.enabled
       ) {
-
         return;
       }
 
       try {
-
         await this.music.play();
-
       }
-      catch (
-        error
-      ) {
-
+      catch (error) {
         console.warn(
           "Music requires another user interaction.",
           error
@@ -127,7 +111,6 @@
       if (
         !this.enabled
       ) {
-
         return;
       }
 
@@ -137,7 +120,6 @@
       if (
         !source
       ) {
-
         return;
       }
 
@@ -147,16 +129,11 @@
       sound.volume =
         Math.max(
           0,
-          Math.min(
-            1,
-            volume
-          )
+          Math.min(1, volume)
         );
 
       sound.play()
-        .catch(
-          () => {}
-        );
+        .catch(() => {});
     }
 
 
@@ -174,15 +151,11 @@
         if (
           this.started
         ) {
-
           this.music.play()
-            .catch(
-              () => {}
-            );
+            .catch(() => {});
         }
       }
       else {
-
         this.music.pause();
       }
     }
@@ -195,21 +168,6 @@
       );
 
       return this.enabled;
-    }
-
-
-    setMusicVolume(
-      volume
-    ) {
-
-      this.music.volume =
-        Math.max(
-          0,
-          Math.min(
-            1,
-            volume
-          )
-        );
     }
 
 
@@ -234,9 +192,7 @@
       ) {
 
         this.music.play()
-          .catch(
-            () => {}
-          );
+          .catch(() => {});
       }
     }
 
